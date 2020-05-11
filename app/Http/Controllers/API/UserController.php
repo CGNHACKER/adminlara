@@ -6,10 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\User;
+use App\Department;
+use App\Roles;
 
 class UserController extends Controller
 {
-
+    private $limit = 10;
     /**
      * Display a listing of the resource.
      *
@@ -24,7 +26,17 @@ class UserController extends Controller
     public function index()
     {
         if(\Gate::allows('isAdmin') || \Gate::allows('isApprover')){
-            return User::latest()->paginate(10);
+               $User =  User::latest()
+                        ->select('users.*','roles.role_name_th','department.name_th')
+                        ->leftjoin('roles', 'users.role_id', '=', 'roles.id')
+                        ->leftjoin('department', 'users.department_id', '=', 'department.id')
+                        ->paginate($this->limit);
+
+            return [
+                'user' => $User,
+                'department' => Department::all(),
+                'role' => Roles::all()
+            ];
         }
     }
 

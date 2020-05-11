@@ -40,4 +40,15 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::apiResources([
         'leave' => 'API\LeaveController'
     ]);
+    Route::post('leaveconfirm','API\LeaveController@ConfirmLeave');
+
+    Route::apiResources([
+        'leavecategory' => 'API\LeaveCategoryController'
+    ]);
+
+    Route::apiResources([
+        'dashboard' => 'API\DashboardController'
+    ]);
+
+    Route::get('lastactivity','API\DashboardController@lastactivity');
 });

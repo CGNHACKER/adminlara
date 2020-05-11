@@ -16,7 +16,6 @@
                 <table class="table table-hover">
                   <thead>
                     <tr>
-                      <th>ID</th>
                       <th>Name</th>
                       <th>Email</th>
                       <th>Nickname</th>
@@ -28,14 +27,18 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="user in users.data" :key="user.id">
-                      <td>{{user.id}}</td>
+
+                    <tr v-if="loading">
+                      <td colspan="8" align="center"> Loading...</td>
+                    </tr>
+
+                    <tr v-if="users" v-for="user in users.data" :key="user.id">
                       <td>{{user.name}}</td>
                       <td>{{user.email}}</td>
                       <td>{{user.nickname}}</td>
                       <td><span class="tag tag-success">{{user.position | upText}}</span></td>
-                      <td>{{user.department_id}}</td>
-                      <td>{{user.role_id}}</td>
+                      <td>{{user.name_th}}</td>
+                      <td>{{user.role_name_th}}</td>
                       <td>{{user.created | MyDate}}</td>
                       <td>
                           <a href="#" @click="ModalEditUser(user)">
@@ -47,6 +50,7 @@
                           </a>
                       </td>
                     </tr>
+
                   </tbody>
                 </table>
               </div>
@@ -115,8 +119,7 @@
                         <div class="form-group">
                           <label>Department</label>
                           <select name="department_id" id="department_id" v-model="form.department_id" class="form-control" :class="{ 'is_invalid' : form.errors.has('department_id')}">
-                            <option value="1">IT Revolution</option>
-                            <option value="2">Sales</option>
+                            <option v-for="department in departments" :value="department.id">{{department.name_th}}</option>
                           </select>
                           <has-error :form="form" field="department_id"></has-error>
                         </div>
@@ -124,9 +127,7 @@
                         <div class="form-group">
                           <label>Role</label>
                           <select name="role_id" id="role_id" v-model="form.role_id" class="form-control" :class="{ 'is_invalid' : form.errors.has('role_id')}">
-                            <option value="1">Administrator</option>
-                            <option value="2">Approver</option>
-                            <option value="3">User</option>
+                            <option v-for="role in roles" :value="role.id">{{role.role_name_th}}</option>
                           </select>
                           <has-error :form="form" field="role_id"></has-error>
                         </div>
@@ -149,13 +150,15 @@
 
 import { Form, HasError, AlertError } from 'vform'
 
-
     export default {
       name : 'member',
       data() {
         return {
+            loading : false,
             editmode : false,
             users : {},
+            departments : {},
+            roles : {},
             form : new Form({
               id : 0,
               name : '',
@@ -225,42 +228,46 @@ import { Form, HasError, AlertError } from 'vform'
         },
         LoadUsers(){
           if(this.$gate.isAdminOrApprover){
+            this.loading = true
             axios.get('api/user').then(response => {
-              this.users = response.data
+              this.loading = false
+              this.users = response.data.user
+              this.departments = response.data.department
+              this.roles = response.data.role
             });
           }
         },
 
         DeleteUser(id){
           swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            title: 'ลบข้อมูล',
+            text: "ยืนยันที่จะลบข้อมูลหรือไม่?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก'
           }).then((result) => {
             if(result.value){
               this.form.delete('api/user/'+id).then(() => {
-                    swal.fire(
-                      'Deleted!',
-                      'Your file has been deleted.',
-                      'success'
-                    )
+                      toast.fire({
+                          icon : 'success',
+                          title : "ลบข้อมูลเรียบร้อยแล้ว"
+                      });
                   fire.$emit('aftercreate')
               }).catch(() => {
-                  swal.fire({
-                      icon : 'warning',
-                      title : 'Delete Fail'
-                  })
+                      toast.fire({
+                          icon : 'warning',
+                          title : "ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง"
+                      });
               });
             }
           }).catch(() => {
-            swal.fire({
-                icon : 'warning',
-                title : 'Delete Fail'
-            })
+                toast.fire({
+                    icon : 'warning',
+                    title : "ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง"
+                });
           });
         }
       },

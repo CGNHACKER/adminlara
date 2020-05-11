@@ -56,8 +56,8 @@
                 <div class="card">
                     <div class="card-header p-2">
                         <ul class="nav nav-pills">
+                        <li class="nav-item"><a class="nav-link active" href="#profile" data-toggle="tab">Profile</a></li>
                         <li class="nav-item"><a class="nav-link" href="#activity" data-toggle="tab">Activity</a></li>
-                        <li class="nav-item"><a class="nav-link active" href="#settings" data-toggle="tab">Settings</a></li>
                         </ul>
                     </div>
                     <div class="card-body">
@@ -177,7 +177,7 @@
                             <!-- /.post -->
                         </div>
 
-                        <div class="tab-pane active" id="settings">
+                        <div class="tab-pane active" id="profile">
                             <form class="form-horizontal">
                             <div class="form-group row">
                                 <label for="inputName" class="col-sm-2 col-form-label">Name</label>
@@ -247,7 +247,6 @@
                         <!-- /.tab-content -->
                     </div>
                 </div>
-            </div>
             </div>
         </div>
     </div>

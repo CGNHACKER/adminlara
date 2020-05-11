@@ -8,10 +8,17 @@ import {Form,HasError,AlertError} from 'vform'
 import moment from 'moment'
 import VueProgressBar from 'vue-progressbar'
 import swal from 'sweetalert2'
-// import routes from './routes'
+import routes from './routes'
 import Gate from './Gate'
 
 Vue.prototype.$gate = new Gate(window.user);
+
+const toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+})
 
 window.swal = swal
 window.toast = toast
@@ -24,12 +31,6 @@ Vue.use(VueProgressBar, {
     height: '2px'
 })
 
-const toast = swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-})
 
 
 Vue.component(HasError.name, HasError)
@@ -38,19 +39,6 @@ Vue.component(AlertError.name, AlertError)
 Vue.component('pagination', require('laravel-vue-pagination'));
 
 Vue.use(VueRouter)
-
-let routes = [
-    {path : '/dashboard',component : require('./components/Dashboard.vue').default},
-    {path : '/members',component : require('./components/Members.vue').default},
-    {path : '/developer',component : require('./components/Developer.vue').default},
-    {path : '/leaveconfig',component : require('./components/LeaveSetting.vue').default},
-    {path : '/department',component : require('./components/Department.vue').default},
-    {path : '/holidayconfig',component : require('./components/HolidayConfig.vue').default},
-    {path : '/roles',component : require('./components/Roles.vue').default},
-    {path : '/leave',component : require('./components/Leave.vue').default},
-    {path : '/profile',component : require('./components/Profile.vue').default},
-    {path : '*',component : require('./components/NotFound.vue').default}
-];
 
 const router = new VueRouter({
     mode : 'history',
@@ -64,6 +52,10 @@ Vue.filter('upText',function(text){
 Vue.filter('MyDate',function(created){
     return moment(created).format('MMMM Do YYYY')
 });
+
+Vue.filter('formatdateago',(created) => {
+    return moment(created).locale('th').fromNow();
+})
 
 Vue.component(
     'passport-clients',

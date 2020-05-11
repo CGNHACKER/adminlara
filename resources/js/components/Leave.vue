@@ -1,73 +1,73 @@
 <template>
     <div>
         <div class="container">
-                <div class="row mt-5" v-if="$gate.isAdminOrApprover()">
-                <div class="col-12">
-                    <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Leave Lists</h3>
+                <!-- <div class="row mt-5" v-if="$gate.isAdminOrApprover()"> -->
+                    <div class="col-12">
+                        <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">จัดการการลา</h3>
 
-                        <div class="card-tools">
-                            <button class="btn btn-primary"  @click="ModalCreateLeave">Create Leave</button>
+                            <div class="card-tools">
+                                <button class="btn btn-primary"  @click="ModalCreateLeave">เพิ่มการลา</button>
+                            </div>
                         </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>กลุ่มผู้อนุมัติ</th>
+                                    <th>ผู้ขอลา</th>
+                                    <th>จำนวนวันที่ลา</th>
+                                    <th>ประเภทการลา</th>
+                                    <th>วันเริ่มลา</th>
+                                    <th>วันสิ้นสุดลา</th>
+                                    <th>สถานะการอนุมัติ</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody v-if="datalength > 0">
+                                <tr v-for="leave in leaves.data" :key="leave.id">
+                                    <td>{{leave.role_name_th}}</td>
+                                    <td>{{leave.name}}</td>
+                                    <td>{{leave.date_of_leave}}</td>
+                                    <td>{{leave.name_th}}</td>
+                                    <td>{{leave.leave_start | myDate}}</td>
+                                    <td>{{leave.leave_end | myDate}}</td>
+
+                                    <td v-if="$gate.user.role_id !== leave.approve_by_role_id && leave.is_accept === '0'" style="color:blue;">รอการอนุมัติ</td>
+                                    <td v-else-if="leave.is_accept === '0' " style="color:blue;cursor:pointer;"  @click="ConfirmLeave(leave.id)">รอการอนุมัติ</td>
+                                    <td v-else-if="leave.is_accept === '1' " style="color:green;">อนุมัติแล้ว</td>
+                                    <td v-else-if="leave.is_accept === '2' " style="color:red;">ไม่อนุมัติ</td>
+                                    
+                                    <td>
+                                        <a href="#" @click="ModalEditLeave(leave)" v-if="leave.is_accept === '0'">
+                                            <i class="fas fa-edit"></i>|
+                                        </a>
+                                        
+                                        <a href="#" @click="DeleteLeave(leave.id)" v-if="leave.is_accept === '0'">
+                                            <i class="fas fa-trash red"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                            <tbody v-else>
+                                <tr align="center">
+                                    <td colspan="8">ไม่มีข้อมูล</td>
+                                </tr>
+                            </tbody>
+
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer">
+                            <pagination :data="leaves" @pagination-change-page="getResults"></pagination>
+                        </div>
+                        </div>
+                        <!-- /.card -->
                     </div>
-                    <!-- /.card-header -->
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>รหัส</th>
-                                <th>กลุ่มที่สามารถอนุมัติได้</th>
-                                <th>ผู้ขอลา</th>
-                                <th>เหตุผลการลา</th>
-                                <th>จำนวนวันที่ลา</th>
-                                <th>จำนวนวันหยุด</th>
-                                <th>ประเภทการลา</th>
-                                <th>วันเริ่มลา</th>
-                                <th>วันสิ้นสุดลา</th>
-                                <th>สถานะการอนุมัติ</th>
-                                <th>ผู้ให้การอนุมัติ</th>
-                                <th>วันที่สถานะ</th>
-                                <th>จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="leave in leaves.data" :key="leave.id">
-                            <td>{{leave.id}}</td>
-                            <td>{{leave.approve_by_role_id}}</td>
-                            <td>{{leave.user_id}}</td>
-                            <td>{{leave.reason_leave}}</td>
-                            <td>{{leave.date_of_leave}}</td>
-                            <td>{{leave.holiday_of_leave}}</td>
-                            <td>{{leave.leave_category_id}}</td>
-                            <td>{{leave.leave_start | myDate}}</td>
-                            <td>{{leave.leave_end | myDate}}</td>
-                            <td v-if="leave.is_active === '0'" style="color:blue;">รอการอนุมัติ</td>
-                            <td v-else-if="leave.is_active === '1'" style="color:green;">อนุมัติแล้ว</td>
-                            <td v-else-if="leave.is_active === '3'" style="color:red;">ไม่ใช้งาน</td>
-                            <td>{{leave.is_accept_by_user_id}}</td>
-                            <td>{{leave.status_confirm_date}}</td>
-                            <td>
-                                <a href="#" @click="ModalEditLeave(leave)">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                /
-                                <a href="#" @click="DeleteLeave(leave.id)">
-                                    <i class="fas fa-trash red"></i>
-                                </a>
-                            </td>
-                            </tr>
-                        </tbody>
-                        </table>
-                    </div>
-                    <!-- /.card-body -->
-                    <div class="card-footer">
-                        <pagination :data="leaves" @pagination-change-page="getResults"></pagination>
-                    </div>
-                    </div>
-                    <!-- /.card -->
-                </div>
-                </div>
+                <!-- </div> -->
         </div>
 
          <div class="modal fade" id="modal-default" style="display: none;" aria-hidden="true">
@@ -85,39 +85,35 @@
 
                         <div class="form-group">
                           <label>Approve by role</label>
-                          <select name="approve_by_role_id" id="approve_by_role_id" v-model="form.approve_by_role_id" class="form-control" :class="{ 'is_invalid' : form.errors.has('approve_by_role_id')}">
-                            <option value="1">Administrator</option>
-                            <option value="2">Approver</option>
+                          <select name="approve_by_role_id" id="approve_by_role_id" v-model="form.approve_by_role_id" class="form-control" :class="{ 'is-invalid' : form.errors.has('approve_by_role_id')}">
+                            <option v-for="role in roles" :value="role.id">{{role.role_name_th}}</option>
                           </select>
                           <has-error :form="form" field="approve_by_role_id"></has-error>
                         </div>
 
                         <div class="form-group">
                           <label>Leave Reason</label>
-                          <textarea class="form-control" name="reason_leave" id="reason_leave"  v-model="form.reason_leave" cols="30" rows="5" :class="{ 'is_invalid' : form.errors.has('reason_leave')}"></textarea>
+                          <textarea class="form-control" name="reason_leave"  v-model="form.reason_leave" cols="30" rows="5" :class="{ 'is-invalid' : form.errors.has('reason_leave')}"></textarea>
                           <has-error :form="form" field="reason_leave"></has-error>
                         </div>
                         
                         <div class="form-group">
                           <label>Leave Category</label>
-                          <select name="leave_category_id" id="leave_category_id" v-model="form.leave_category_id" class="form-control" :class="{ 'is_invalid' : form.errors.has('leave_category_id')}">
-                            <option value="1">Sick leave</option>
-                            <option value="2">Leave</option>
+                          <select name="leave_category_id" v-model="form.leave_category_id" class="form-control" :class="{ 'is-invalid' : form.errors.has('leave_category_id')}">
+                            <option v-for="leavecategory in leavecategorys" :value="leavecategory.id">{{leavecategory.name_th}}</option>
                           </select>
                           <has-error :form="form" field="leave_category_id"></has-error>
                         </div>
                         
                         <div class="form-group">
                           <label>Leave Start</label>
-                          <datepicker @selected="CheckDisableDate" :language="th" :format="customFormatter" :disabled-dates="disabledDates" v-model="form.leave_start" name="leave_start"></datepicker>
-                          <!-- <input type="date" name="leave_start" id="leave_start" v-model="form.leave_start" class="form-control" :class="{ 'is_invalid' : form.errors.has('leave_start')}"> -->
+                          <datepicker  @selected="CheckDisableDate" :language="th" :format="customFormatter" :disabled-dates="disabledDates" v-model="form.leave_start" name="leave_start" :class="{ 'is-invalid' : form.errors.has('leave_start')}"></datepicker>
                           <has-error :form="form" field="leave_start"></has-error>
                         </div>
 
                         <div class="form-group">
                           <label>Leave End</label>
-                          <datepicker @selected="disableFrom" :language="th" :format="customFormatter" :disabled-dates="disabledDates" v-model="form.leave_end" name="leave_end"></datepicker>
-                          <!-- <input type="date" name="leave_end" id="leave_end" v-model="form.leave_end" class="form-control" :class="{ 'is_invalid' : form.errors.has('leave_end')}"> -->
+                          <datepicker  @selected="disableFrom" :language="th" :format="customFormatter" :disabled-dates="disabledDates" v-model="form.leave_end" name="leave_end" :class="{ 'is-invalid' : form.errors.has('leave_end')}"></datepicker>
                           <has-error :form="form" field="leave_end"></has-error>
                         </div>
 
@@ -139,6 +135,8 @@
 import Datepicker from 'vuejs-datepicker';
 import moment from 'moment'
 import {th} from 'vuejs-datepicker/dist/locale'
+import { Form, HasError, AlertError } from 'vform'
+
     export default {
         name : 'leave',
         components : {
@@ -149,7 +147,9 @@ import {th} from 'vuejs-datepicker/dist/locale'
                 th: th,
                 editmode : false,
                 leaves : {},
-                // disabledDates : {},
+                leavecategorys : {},
+                roles : {},
+                datalength : 0,
                 form : new Form({
                     id : 0,
                     approve_by_role_id : 0,
@@ -164,35 +164,90 @@ import {th} from 'vuejs-datepicker/dist/locale'
                     is_accept_by_user_id : 0,
                     status_confirm_date : 0
                 }),
-                // state : {
-                    disabledDates: {
-                    },
-                // }
+                disabledDates: {},
             }
         },
         mounted() {
             console.log('Component mounted.')
         },
         methods :{
-            CheckDisableDate(event) {
-                if (typeof this.disabledDates.to === 'undefined') {
-                        this.disabledDates = {
-                            to: null,
-                            daysOfMonth: this.disabledDates.daysOfMonth,
-                            from: this.disabledDates.from
-                        }
+            ConfirmLeave(leave_id){
+                swal.fire({
+                    title: 'ยืนยัน',
+                    text: "ต้องการอนุมัติการลาหรือไม่",
+                    icon: 'question',
+                    animation : false,
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText :'ไม่อนุมัติ',
+                    confirmButtonText: 'อนุมัติ',
+                    footer: '<a href="#" onclick="swal.close();">ยกเลิก</a>'
+                }).then((result) => {
+                    if (result.value) {
+
+                        axios.post('api/leaveconfirm',{id : leave_id,is_accept : '1'})
+                        .then(() => {
+                            toast.fire({
+                                icon : 'success',
+                                title : "อัพเดทสถานะเรียบร้อยแล้ว"
+                            });
+                        })
+                        .catch(() => {
+                            toast.fire({
+                                icon : 'warning',
+                                title : "ระบบมีปัญหา กรุณาลองใหม่อีกครั้ง"
+                            });
+                        })
+                        fire.$emit('aftercreate')
+                    }else if(result.dismiss){
+                        axios.post('api/leaveconfirm',{id : leave_id,is_accept : '2'})
+                        .then(() => {
+                            toast.fire({
+                                icon : 'success',
+                                title : "อัพเดทสถานะเรียบร้อยแล้ว"
+                            });
+                        })
+                        .catch(() => {
+                            toast.fire({
+                                icon : 'warning',
+                                title : "ระบบมีปัญหา กรุณาลองใหม่อีกครั้ง"
+                            });
+                        })
                     }
-                this.disabledDates.to = event
+                })
+
             },
-            disableFrom (val) {
-                if (typeof this.disabledDates.from === 'undefined') {
+            CheckHolidayDisable(event) {
+                // axios.get('api/holiday')
+                // .then((response) => {
+                //     var date = '2020-01-31'
+                //     this.disabledDates.dates = [new Date(2020,0,16)]
+                //     console.log(moment(date).format());
+
+                // })
+            },
+            CheckDisableDate(val) {
+                if (typeof this.disabledDates.to === 'undefined') {
                     this.disabledDates = {
-                        to: this.disabledDates.to,
+                        to: null,
                         daysOfMonth: this.disabledDates.daysOfMonth,
-                        from: null
+                        from:this.disabledDates.from,
+                        dates : this.disabledDates.dates,
+                        days : this.disabledDates.days
                     }
                 }
-                this.disabledDates.from = val
+                this.disabledDates.to = val
+            },
+            disableFrom (val) {
+                // if (typeof this.disabledDates.from === 'undefined') {
+                //     this.disabledDates = {
+                //         to: this.disabledDates.to,
+                //         daysOfMonth: this.disabledDates.daysOfMonth,
+                //         from: null
+                //     }
+                // }
+                // this.disabledDates.from = val
             },
             customFormatter(date) {
                 moment.locale('th');
@@ -256,41 +311,55 @@ import {th} from 'vuejs-datepicker/dist/locale'
             LoadLeave(){
                 if(this.$gate.isAdminOrApprover){
                     axios.get('api/leave').then(response => {
-                        this.leaves = response.data
+                        this.leaves = response.data.leave
+                        this.datalength = this.leaves.data.length
+                        this.leavecategorys = response.data.leavecategory
+                        this.roles = response.data.role
+                        let HolidayLoop = Array()
+                        for(var i=0;i < response.data.holidayconfig.length;i++){
+                            HolidayLoop[i] = new Date(response.data.holidayconfig[i].holiday_date)
+                        }
+
+                        this.disabledDates = {
+                            dates : HolidayLoop,
+                            days: [6, 0],
+                            to : new Date()
+                        }
                     });
                 }
             },
-
             DeleteLeave(id){
                 swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
+                    title: 'ลบข้อมูล',
+                    text: "ยืนยันการลบข้อมูลหรือไม่",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: 'ยืนยัน',
+                    cancelButtonText: 'ยกเลิก'
                 }).then((result) => {
                     if(result.value){
                     this.form.delete('api/leave/'+id).then(() => {
-                            swal.fire(
-                                'Deleted!',
-                                'Your file has been deleted.',
-                                'success'
-                            )
+
+                        toast.fire({
+                            icon : 'success',
+                            title : "ลบข้อมูลเรียบร้อยแล้ว"
+                        });
+
                         fire.$emit('aftercreate')
                     }).catch(() => {
-                        swal.fire({
+                        toast.fire({
                             icon : 'warning',
-                            title : 'Delete Fail'
-                        })
+                            title : "ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง"
+                        });
                     });
                     }
                 }).catch(() => {
-                    swal.fire({
-                        icon : 'warning',
-                        title : 'Delete Fail'
-                    })
+                        toast.fire({
+                            icon : 'warning',
+                            title : "ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง"
+                        });
                 });
             }
         },

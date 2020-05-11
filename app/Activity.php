@@ -8,13 +8,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class leavecategory extends Authenticatable
+class Activity extends Authenticatable
 {
     use Notifiable,HasApiTokens;
-
-    public $table = 'leave_category';
-
+    
+    public $table = 'activity';
     protected $fillable = [
-        'id','name_th', 'name_en', 'leave_unit','is_active'
+        'activity_code', 'user_id','is_active'
     ];
 }
